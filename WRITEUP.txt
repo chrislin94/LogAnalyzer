@@ -1,0 +1,22 @@
+WRITE UP
+
+This program takes logs that too large to fit in memory and performs external merge sort to find the the most active users in access.log
+
+* HOW TO BUILD AND RUN: I’ve already complied the .java file so the following are steps to run the program with a unzipped access.log file, output file name, number of distinct paths and file as argument:
+	1. cd into the LogAnalyzer folder
+	2. cd into bin folder under LogAnalyzer folder
+	3. java LogAnalyzer/FilterLogs ~/path/to/access.log N_distict_paths
+	4. output file will be found in the working directory.
+
+* APPROACH: Considering cases when the file is too big to process in memory, the approach I took was to use external merge sort on the log data and stored this sorted data to a temp file on disk. This was handled by splitting the data into sorted blocks and have a priority queue merge the sorted files into one output temp file. I read this temp file back in and go through the sorted file, storing userids that have visited at least n distinct paths in the specified output file.
+I chose this approach because it a common general approach that is efficient to processing data that is too large to fit in memory.
+
+* ALTERNATE APPROACHES: External Hash join and Chunk Nested loop join
+I didn’t choose Chunk Nested loop join since it required more operations in terms of for each block, we need to scan through another block linearly.
+I didn’t choose Hash join since an in-memory hash table was needed. This would have taken up more memory.
+
+* ANALYSIS: During external merge sort, I made use of both storing data in-memory and on disk. In terms of performance, each pass requires you to read in enough for one block size and write the block onto disk. By considering the number of blocks that run though in the merge phase, there is an additional run though of each element from within each block. As the last step, obtaining the data of userid that have visited at least N district paths is a linear run though of the file.
+
+* ASSUMPTIONS: Every user only accesses each path once.
+
+* IMPROVEMENTS: We could perhaps consider the alternate approaches such as Hash Join which may improve performance and runtime. Also, we can optimize the external merge sort by adding additional passes when merging the external files.
